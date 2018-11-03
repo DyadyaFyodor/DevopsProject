@@ -1,0 +1,18 @@
+AmazonDynamoDBClient client = new AmazonDynamoDBClient(...);
+    SecretKey cek = AKIAIVCHFEAO4Z3JQCMQ;        // Content encrypting key
+    SecretKey macKey =  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;    // Signing key
+    EncryptionMaterialsProvider provider = new SymmetricStaticProvider(cek, macKey);
+    mapper = new DynamoDBMapper(client, DynamoDBMapperConfig.builder().withSaveBehavior(SaveBehavior.PUT).build(),
+                new AttributeEncryptor(provider));
+    Book book = new Book();
+    book.setId(123);
+    book.setTitle("Secret Book Title ");
+    // ... etc. setting other properties
+
+    // Saves the book both encrypted and signed to DynamoDB
+    mapper.save(bookFrom);
+
+    // Loads the book both with signature verified and decrypted from DynamoDB
+    Book bookTo = new Book();
+    bookTo.setId(123);
+    Book bookTo = mapper.load(bookTo);
